@@ -1,7 +1,7 @@
 const NodeCache = require('node-cache');
 
 // Create cache instance with 5 minute TTL
-const cache = new NodeCache({ stdTTL: 300 });
+const cache = new NodeCache({ stdTTL: 300, checkperiod: 60 });
 
 const cacheMiddleware = (duration = 300) => {
   return (req, res, next) => {
@@ -10,10 +10,12 @@ const cacheMiddleware = (duration = 300) => {
       return next();
     }
 
-    const key = req.originalUrl;
+    // Create cache key including query params for dashboard
+    const key = `${req.originalUrl}_${JSON.stringify(req.query)}`;
     const cachedResponse = cache.get(key);
 
     if (cachedResponse) {
+      res.setHeader('X-Cache', 'HIT');
       return res.json(cachedResponse);
     }
 
@@ -22,7 +24,10 @@ const cacheMiddleware = (duration = 300) => {
 
     // Override json method to cache response
     res.json = function(data) {
-      cache.set(key, data, duration);
+      if (res.statusCode === 200) {
+        cache.set(key, data, duration);
+      }
+      res.setHeader('X-Cache', 'MISS');
       return originalJson.call(this, data);
     };
 
