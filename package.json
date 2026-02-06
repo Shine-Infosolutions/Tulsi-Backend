@@ -1,5 +1,5 @@
 {
-  "name": "Tulsi-backend",
+  "name": "tulsi-backend",
   "version": "1.0.4",
   "description": "Tulsi Resort Backend API",
   "main": "server.js",

@@ -35,7 +35,7 @@ const uploadBase64ToCloudinary = async (base64String) => {
     }
     
     const result = await cloudinary.uploader.upload(base64String, {
-      folder: 'tulsi-resort-rooms',
+      folder: 'tulsi-rooms',
       transformation: [{ width: 800, height: 600, crop: 'limit' }]
     });
     return result.secure_url;

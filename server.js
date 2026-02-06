@@ -48,8 +48,6 @@ const app = express();
 // Middleware
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://tulsi-backend-beta.vercel.app",
-  "https://tulsi-frontend.vercel.app", 
 ];
 
 app.use(

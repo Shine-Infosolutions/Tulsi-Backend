@@ -11,7 +11,7 @@ const storage = new CloudinaryStorage({
     const nameWithoutExt = path.parse(file.originalname).name;
 
     return {
-      folder: "havan-booking-media",
+      folder: "tulsi-booking-media",
       allowed_formats: allowedFormats,
       public_id: `${Date.now()}-${nameWithoutExt}`,
       resource_type: "image",

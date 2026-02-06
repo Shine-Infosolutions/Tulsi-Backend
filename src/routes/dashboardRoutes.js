@@ -5,11 +5,8 @@ const { auth, authorize } = require('../middleware/auth');
 const { dashboardLimiter } = require('../middleware/rateLimiter');
 const { cacheMiddleware } = require('../middleware/cache');
 
-// Dashboard stats (Admin, GM, Accounts) - Cache for 2 minutes
-router.get('/stats', dashboardLimiter, cacheMiddleware(120), auth, authorize(['ADMIN', 'GM', 'ACCOUNTS', 'FRONT DESK']), dashboardController.getDashboardStats);
-
-// Fast basic stats for quick loading - Cache for 1 minute
-router.get('/basic-stats', dashboardLimiter, cacheMiddleware(60), auth, authorize(['ADMIN', 'GM', 'ACCOUNTS', 'FRONT DESK']), dashboardController.getBasicStats);
+// Dashboard stats (Admin, GM, Accounts)
+router.get('/stats', dashboardLimiter, cacheMiddleware(60), auth, authorize(['ADMIN', 'GM', 'ACCOUNTS', 'FRONT DESK']), dashboardController.getDashboardStats);
 
 // Download dashboard stats as CSV
 router.get('/download-csv', auth, authorize(['ADMIN', 'GM', 'ACCOUNTS', 'FRONT DESK']), dashboardController.downloadDashboardCSV);

@@ -35,7 +35,7 @@ exports.createVendor = async (req, res) => {
     if (scannerImg && scannerImg.startsWith('data:image/')) {
       try {
         const uploadResult = await cloudinary.uploader.upload(scannerImg, {
-          folder: 'havan-booking-media',
+          folder: 'tulsi-vendor-media',
           public_id: `vendor-${Date.now()}`,
           transformation: [{ width: 800, height: 800, crop: 'limit' }]
         });
@@ -86,7 +86,7 @@ exports.updateVendor = async (req, res) => {
     if (scannerImg && scannerImg.startsWith('data:image/')) {
       try {
         const uploadResult = await cloudinary.uploader.upload(scannerImg, {
-          folder: 'havan-booking-media',
+          folder: 'tulsi-vendor-media',
           public_id: `vendor-${Date.now()}`,
           transformation: [{ width: 800, height: 800, crop: 'limit' }]
         });

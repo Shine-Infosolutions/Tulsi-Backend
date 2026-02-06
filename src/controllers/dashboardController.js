@@ -53,7 +53,7 @@ exports.getDashboardStats = async (req, res) => {
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
 
-    // Ultra-optimized single aggregation for all booking stats
+    // Single optimized aggregation for all stats
     const [bookingStats, roomCount, orderCounts] = await Promise.all([
       Booking.aggregate([
         { $match: baseQuery },
@@ -98,15 +98,15 @@ exports.getDashboardStats = async (req, res) => {
             }
           }
         }
-      ]).allowDiskUse(true),
+      ]),
       
-      // Optimized room count
+      // Just get room count with basic info
       Room.countDocuments({ deleted: { $ne: true } }),
       
-      // Optimized order counts with minimal data
+      // Order counts only
       Promise.all([
-        Laundry.countDocuments({ deleted: { $ne: true }, ...dateFilter }),
-        RestaurantOrder.countDocuments(dateFilter)
+        Laundry.countDocuments({ deleted: { $ne: true } }),
+        RestaurantOrder.countDocuments({ deleted: { $ne: true } })
       ])
     ]);
 
@@ -138,63 +138,6 @@ exports.getDashboardStats = async (req, res) => {
         todayCheckOuts: stats.todayCheckOuts
       },
       totalRooms: roomCount
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Fast basic stats endpoint for quick dashboard loading
-exports.getBasicStats = async (req, res) => {
-  try {
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const todayEnd = new Date();
-    todayEnd.setHours(23, 59, 59, 999);
-    
-    // Ultra-fast basic stats with minimal queries
-    const [basicStats, roomCount] = await Promise.all([
-      Booking.aggregate([
-        { $match: { deleted: { $ne: true } } },
-        {
-          $group: {
-            _id: null,
-            totalBookings: { $sum: 1 },
-            activeBookings: { $sum: { $cond: [{ $eq: ['$status', 'Checked In'] }, 1, 0] } },
-            totalRevenue: { $sum: '$rate' },
-            todayCheckIns: {
-              $sum: {
-                $cond: [
-                  {
-                    $and: [
-                      { $eq: ['$status', 'Checked In'] },
-                      { $gte: ['$checkInDate', todayStart] },
-                      { $lte: ['$checkInDate', todayEnd] }
-                    ]
-                  },
-                  1, 0
-                ]
-              }
-            }
-          }
-        }
-      ]).allowDiskUse(true),
-      Room.countDocuments({ deleted: { $ne: true } })
-    ]);
-
-    const stats = basicStats[0] || {
-      totalBookings: 0, activeBookings: 0, totalRevenue: 0, todayCheckIns: 0
-    };
-
-    res.json({
-      success: true,
-      stats: {
-        totalBookings: stats.totalBookings,
-        activeBookings: stats.activeBookings,
-        totalRevenue: stats.totalRevenue,
-        todayCheckIns: stats.todayCheckIns,
-        totalRooms: roomCount
-      }
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
