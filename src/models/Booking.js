@@ -215,7 +215,7 @@ bookingSchema.pre('save', async function(next) {
         nextNum = parseInt(parts[2]) + 1;
       }
     }
-    this.invoiceNumber = `HH/${month}/${String(nextNum).padStart(4, '0')}`;
+    this.invoiceNumber = `TR/${month}/${String(nextNum).padStart(4, '0')}`;
   }
   
   if (this.actualCheckOutTime && this.status === 'Checked Out' && !this.lateCheckoutFine.applied && this.timeOut) {

@@ -695,8 +695,11 @@ exports.updateBooking = async (req, res) => {
         }
       }
       
-      // Set actual check-in time
-      booking.actualCheckInTime = new Date();
+      // Set actual check-in time if not already set
+      if (!booking.actualCheckInTime) {
+        booking.actualCheckInTime = new Date();
+        console.log(`✅ Setting actualCheckInTime for booking ${booking.grcNo}: ${booking.actualCheckInTime}`);
+      }
       
       // Set all rooms to 'booked' status when checking in
       for (const roomNum of roomNumbers) {
@@ -730,7 +733,9 @@ exports.updateBooking = async (req, res) => {
     
     // Handle status change to Checked Out - set actual check-out time
     if (updates.status && updates.status === 'Checked Out') {
-      booking.actualCheckOutTime = new Date();
+      if (!booking.actualCheckOutTime) {
+        booking.actualCheckOutTime = new Date();
+      }
     }
 
     // Handle status change to Cancelled or Checked Out
