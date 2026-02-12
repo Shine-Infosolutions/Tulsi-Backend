@@ -70,6 +70,7 @@ const bookingSchema = new mongoose.Schema({
     children: { type: Number, default: 0, min: 0 }
   }],
   roomRates: [{
+    roomId: { type: mongoose.Schema.Types.ObjectId, ref: 'Room' },
     roomNumber: { type: String, required: true },
     customRate: { type: Number, default: 0 },
     extraBed: { type: Boolean, default: false },

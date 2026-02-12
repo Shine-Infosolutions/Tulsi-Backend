@@ -50,6 +50,9 @@ router.post("/fix-rooms", auth, authorize(['ADMIN']), bookingController.fixRoomA
 // Fix booking room numbers (Admin only)
 router.post("/fix-room-numbers", auth, authorize(['ADMIN']), bookingController.fixBookingRoomNumbers);
 
+// Sync all room statuses (Admin only)
+router.post("/sync-room-statuses", auth, authorize(['ADMIN']), bookingController.syncAllRoomStatuses);
+
 // Delete booking (Admin only)
 router.delete("/unbook/:bookingId", auth, authorize(['ADMIN']), bookingController.deleteBooking);
 
