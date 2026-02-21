@@ -103,10 +103,10 @@ exports.getDashboardStats = async (req, res) => {
       // Just get room count with basic info
       Room.countDocuments({ deleted: { $ne: true } }),
       
-      // Order counts only
+      // Order counts with date filter
       Promise.all([
-        Laundry.countDocuments({ deleted: { $ne: true } }),
-        RestaurantOrder.countDocuments({ deleted: { $ne: true } })
+        Laundry.countDocuments({ deleted: { $ne: true }, ...dateFilter }),
+        RestaurantOrder.countDocuments({ deleted: { $ne: true }, ...dateFilter })
       ])
     ]);
 
