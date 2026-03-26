@@ -842,7 +842,7 @@ exports.updateBooking = async (req, res) => {
 
     // Update allowed simple fields directly on booking document
     const simpleFields = [
-      'salutation', 'name', 'age', 'gender', 'address', 'city', 'nationality',
+      'salutation', 'name', 'age', 'gender', 'address', 'city', 'state', 'nationality',
       'mobileNo', 'email', 'phoneNo', 'birthDate', 'anniversary',
 
       'companyName', 'companyGSTIN',
@@ -1044,6 +1044,7 @@ exports.getCustomerDetailsByGRC = async (req, res) => {
       gender: booking.gender,
       address: booking.address,
       city: booking.city,
+      state: booking.state,
       nationality: booking.nationality,
       mobileNo: booking.mobileNo,
       email: booking.email,
