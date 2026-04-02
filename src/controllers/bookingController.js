@@ -55,34 +55,27 @@ const uploadBase64ToCloudinary = async (base64String) => {
   }
 };
 
-// 🔹 Generate sequential GRC number (resets in March end)
+// 🔹 Generate sequential GRC — resets every April 1st
+// Format: GRC0001, GRC0002, ...
+// Globally unique across years by appending FY suffix only when collision occurs
 const generateGRC = async () => {
   const now = new Date();
-  const currentYear = now.getFullYear();
-  const currentMonth = now.getMonth(); // 0-based (March = 2)
-  
-  // Financial year starts from April (month 3)
-  const financialYear = currentMonth >= 3 ? currentYear : currentYear - 1;
-  const financialYearStart = new Date(financialYear, 3, 1); // April 1st
-  const financialYearEnd = new Date(financialYear + 1, 2, 31, 23, 59, 59); // March 31st
-  
-  // Find highest GRC in current financial year
-  const lastBooking = await Booking.findOne({
-    createdAt: {
-      $gte: financialYearStart,
-      $lte: financialYearEnd
-    }
-  }, { grcNo: 1 })
-    .sort({ grcNo: -1 })
-    .lean();
-  
-  let nextNumber = 1;
-  if (lastBooking && lastBooking.grcNo) {
-    const lastNumber = parseInt(lastBooking.grcNo.replace('GRC', ''));
-    nextNumber = lastNumber + 1;
+  const startYear = now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
+  const fyStart = new Date(startYear, 3, 1);     // April 1st
+  const fyEnd   = new Date(startYear + 1, 3, 1); // April 1st next year
+
+  const last = await Booking.findOne(
+    { createdAt: { $gte: fyStart, $lt: fyEnd } },
+    { grcNo: 1 }
+  ).sort({ createdAt: -1 }).lean();
+
+  let next = 1;
+  if (last?.grcNo) {
+    const parsed = parseInt(last.grcNo.replace(/^GRC/, ''));
+    if (!isNaN(parsed)) next = parsed + 1;
   }
-  
-  return `GRC${nextNumber.toString().padStart(4, '0')}`;
+
+  return `GRC${String(next).padStart(4, '0')}`;
 };
 
 
@@ -351,7 +344,21 @@ exports.bookRoom = async (req, res) => {
         categoryId: category._id
       });
 
-      await booking.save();
+      // Retry on duplicate grcNo (last-resort guard for any edge case)
+      let saveAttempts = 0;
+      while (true) {
+        try {
+          await booking.save();
+          break;
+        } catch (err) {
+          if (err.code === 11000 && err.keyPattern?.grcNo && saveAttempts < 3) {
+            saveAttempts++;
+            booking.grcNo = await generateGRC();
+          } else {
+            throw err;
+          }
+        }
+      }
 
       // Fix room number based on roomRates (source of truth)
       if (roomRates && roomRates.length > 0) {

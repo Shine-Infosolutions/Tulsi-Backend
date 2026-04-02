@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const bookingSchema = new mongoose.Schema({
   bookingNo: { type: String, unique: true, index: true },
-  grcNo: { type: String, unique: true, required: true },  // Guest Registration Card No
+  grcNo: { type: String, required: true, index: true },  // Guest Registration Card No
   invoiceNumber: { type: String, unique: true },  // Invoice number like HH/12/0001
   categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
 
@@ -182,7 +182,7 @@ const bookingSchema = new mongoose.Schema({
 
 // Critical indexes for performance
 bookingSchema.index({ bookingNo: 1 }, { unique: true });
-bookingSchema.index({ grcNo: 1 }, { unique: true });
+bookingSchema.index({ grcNo: 1 });
 bookingSchema.index({ invoiceNumber: 1 }, { unique: true, sparse: true });
 bookingSchema.index({ deleted: 1, status: 1, checkInDate: 1 });
 bookingSchema.index({ deleted: 1, createdAt: -1 });
